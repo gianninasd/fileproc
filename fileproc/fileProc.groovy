@@ -19,7 +19,7 @@ println "Processing file [$fileName] on $today"
 println "-------------------------------"
 
 // load config file
-// not using 'def' keyword or setting a type so it has script scope
+// not using 'def' keyword or setting a type so it has global script scope
 cfg = new Config("cc-config.json")
 
 // open file
