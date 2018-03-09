@@ -50,6 +50,10 @@ def parseLine( String line ) {
 
 // send email to a list of recipients
 def sendEmail( BillingRecord rec ) {
+  // TODO save latest info to DB
+  // TODO load historic info from DB
+  String message = loadEmailTemplate( rec )
+
   Email email = new SimpleEmail()
   email.setHostName("localhost");
   email.setSmtpPort(25)
@@ -57,9 +61,23 @@ def sendEmail( BillingRecord rec ) {
   //email.setSSLOnConnect(true)
   email.setFrom("user@gmail.com")
   email.setSubject("TestMail2")
-  email.setMsg("This is a test mail ... :-)")
+  email.setMsg(message)
   email.addTo("jimmyg1975@gmail.com")
   email.send();
+}
+
+// load email and bind the record data and return the full text
+def loadEmailTemplate( BillingRecord rec ) {
+  def binding = [
+    firstName: rec.firstName,
+    lastName: rec.lastName,
+    amount: 22
+  ]
+
+  def tpl = new File('email.template')
+  def engine = new groovy.text.GStringTemplateEngine()
+  def template = engine.createTemplate( tpl ).make( binding )
+  return template.toString()
 }
 
 // utility class to keep track of the line we are at
