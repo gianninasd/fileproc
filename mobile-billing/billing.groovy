@@ -50,8 +50,6 @@ def parseLine( String line ) {
 
 // send email to a list of recipients
 def sendEmail( BillingRecord rec ) {
-  // TODO save latest info to DB
-  // TODO load historic info from DB
   String message = loadEmailTemplate( rec )
 
   Email email = new SimpleEmail()
@@ -59,6 +57,10 @@ def sendEmail( BillingRecord rec ) {
   email.setSmtpPort(25)
   email.setAuthenticator(new DefaultAuthenticator("username", "password"))
   //email.setSSLOnConnect(true)
+  /*email.setHostName("smtp.google.com");
+  //email.setSmtpPort(587)
+  email.setAuthenticator(new DefaultAuthenticator("angelone197555@gmail.com", "Parth3n0n"))
+  //email.setSSLOnConnect(true)*/
   email.setFrom("user@gmail.com")
   email.setSubject("TestMail2")
   email.setMsg(message)
