@@ -1,3 +1,9 @@
 Hello $firstName $lastName
 
 We are sending you this email to tell you about your mobile usage ... be careful!
+
+cars {                                          
+   cars.each {                                  
+       car(make: it.make, model: it.model)      
+   }                                            
+}
