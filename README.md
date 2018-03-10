@@ -15,3 +15,7 @@ Open a console and run the following commands to get going:
 * `cd fileproc`
 * `groovy fileProc.groovy`
 * You will see processing output on your console
+
+## References
+Below are some reference web sites
+* GMail SMTP setup: `https://support.google.com/a/answer/176600?hl=en`
