@@ -15,6 +15,10 @@ println "Arguments: $args"
 println "Processing file [$fileName] on $today"
 println "-------------------------------"
 
+// load config file
+// not using 'def' keyword or setting a type so it has global script scope
+cfg = new Config("config.json")
+
 // open file
 File file = new File(fileName)
 //println "Raw dump:\n" + file.text + "\n"
@@ -53,19 +57,15 @@ def sendEmail( BillingRecord rec ) {
   String message = loadEmailTemplate( rec )
 
   Email email = new SimpleEmail()
-  email.setHostName("localhost");
-  email.setSmtpPort(25)
-  email.setAuthenticator(new DefaultAuthenticator("username", "password"))
-  //email.setSSLOnConnect(true)
-  /*email.setHostName("smtp.google.com");
+  email.setHostName(cfg.data.smtpHost)
   //email.setSmtpPort(587)
-  email.setAuthenticator(new DefaultAuthenticator("angelone197555@gmail.com", "Parth3n0n"))
-  //email.setSSLOnConnect(true)*/
-  email.setFrom("user@gmail.com")
-  email.setSubject("TestMail2")
+  email.setAuthenticator(new DefaultAuthenticator(cfg.data.smtpUser, cfg.data.smtpPassword))
+  email.setSSLOnConnect(true)
+  email.setFrom(cfg.data.emailFrom)
+  email.setSubject(cfg.data.emailSubject)
   email.setMsg(message)
   email.addTo("jimmyg1975@gmail.com")
-  email.send();
+  email.send()
 }
 
 // load email and bind the record data and return the full text

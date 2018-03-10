@@ -1,0 +1,7 @@
+{
+  "smtpHost": "smtp.gmail.com",
+  "smtpUser": "angelone197555@gmail.com",
+  "smtpPassword": "Parth3n0n",
+  "emailFrom": "admin@paysafe.com",
+  "emailSubject": "Monthly Mobile Billing"
+}
