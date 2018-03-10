@@ -9,20 +9,33 @@ import org.apache.commons.mail.*
 
 // global variables
 Date today = new Date()
-String fileName = "rogers.csv"
 
 println "\nGroovy Mobile Billing"
 println "-------------------------------"
 println "Arguments: $args"
-println "Processing file [$fileName] on $today"
-println "-------------------------------"
+
+try {
+  validateCommandArguments( args )
+}
+catch( Exception ex ) {
+  println "\nSTOPPED - " + ex.message
+  System.exit(-1)
+}
 
 // load config file
 // not using 'def' keyword or setting a type so it has global script scope
 cfg = new Config("config.json")
 
+// add the command line arguments
+cfg.data.month = args[0]
+cfg.data.sourceFile = args[1]
+cfg.data.dbFile = args[2]
+
+println "Processing file [$cfg.data.sourceFile] on $today"
+println "-------------------------------"
+
 // open file
-File file = new File(fileName)
+File file = new File(cfg.data.sourceFile)
 //println "Raw dump:\n" + file.text + "\n"
 
 // scroll thru each line
@@ -60,7 +73,6 @@ def sendEmail( BillingRecord rec ) {
 
   Email email = new SimpleEmail()
   email.setHostName(cfg.data.smtpHost)
-  //email.setSmtpPort(587)
   email.setAuthenticator(new DefaultAuthenticator(cfg.data.smtpUser, cfg.data.smtpPassword))
   email.setSSLOnConnect(true)
   email.setFrom(cfg.data.emailFrom)
@@ -87,6 +99,20 @@ def getEmailContent( BillingRecord rec ) {
   output.writeTo(writer);
 
   return writer.toString()
+}
+
+// parses the command line arguments and returns and error if some are missing or invalid
+def validateCommandArguments( String[] arguments ) {
+  if( arguments.length == 0 || arguments.length != 3 ) {
+    throw new Exception("Missing one or more arguments: <month> <source file> <database file>")
+  }
+
+  String [] months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+  String argMonth = arguments[0]
+
+  if( !months.contains(argMonth) ) {
+    throw new Exception("First argument must be a valid 3 letter month")
+  }
 }
 
 // utility class to keep track of the line we are at
