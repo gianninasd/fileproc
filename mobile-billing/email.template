@@ -1,9 +1,16 @@
-Hello $firstName $lastName
-
-We are sending you this email to tell you about your mobile usage ... be careful!
-
-cars {                                          
-   cars.each {                                  
-       car(make: it.make, model: it.model)      
-   }                                            
+yieldUnescaped '<!DOCTYPE html>'                                                    
+html(lang:'en') {                                                                   
+    head {                                                                          
+        meta('http-equiv':'"Content-Type" content="text/html; charset=utf-8"')      
+        title('Monthly Mobile Billing')                                                            
+    }                                                                               
+    body {                                                                          
+        span('Hello ')
+        span(firstName)
+        span(' ')
+        span(lastName)
+        span(',')
+        p('We are sending you this email to tell you about your mobile usage ... so be careful!')
+        p('Ut dictum tempor porta. Mauris tempus ullamcorper blandit. Mauris luctus, lorem vitae iaculis accumsan, enim nisi blandit ligula, sit amet congue elit nulla nec nisl. Praesent semper tempor metus id porta. Quisque neque ligula, condimentum id euismod ac, molestie a nibh. Quisque id dolor tellus. Duis ex quam, auctor et condimentum at, semper ut orci. Phasellus tincidunt placerat felis in vehicula.')
+    }                                                                               
 }

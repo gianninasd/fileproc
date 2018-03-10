@@ -3,6 +3,8 @@
 
 @Grab('org.apache.commons:commons-email:1.5')
 
+import groovy.text.*
+import groovy.text.markup.*
 import org.apache.commons.mail.*
 
 // global variables
@@ -54,7 +56,7 @@ def parseLine( String line ) {
 
 // send email to a list of recipients
 def sendEmail( BillingRecord rec ) {
-  String message = loadEmailTemplate( rec )
+  String message = getEmailContent( rec )
 
   Email email = new SimpleEmail()
   email.setHostName(cfg.data.smtpHost)
@@ -63,23 +65,28 @@ def sendEmail( BillingRecord rec ) {
   email.setSSLOnConnect(true)
   email.setFrom(cfg.data.emailFrom)
   email.setSubject(cfg.data.emailSubject)
-  email.setMsg(message)
+  email.setContent(message,"text/html")
   email.addTo("jimmyg1975@gmail.com")
   email.send()
 }
 
-// load email and bind the record data and return the full text
-def loadEmailTemplate( BillingRecord rec ) {
-  def binding = [
+// load email template and bind the record data and return the full text
+def getEmailContent( BillingRecord rec ) {
+  def model = [
     firstName: rec.firstName,
     lastName: rec.lastName,
     amount: 22
   ]
 
-  def tpl = new File('email.template')
-  def engine = new groovy.text.GStringTemplateEngine()
-  def template = engine.createTemplate( tpl ).make( binding )
-  return template.toString()
+  TemplateConfiguration tplCfg = new TemplateConfiguration()        
+  MarkupTemplateEngine engine = new MarkupTemplateEngine(tplCfg)    
+
+  Template template = engine.createTemplateByPath("email.template")
+  Writable output = template.make(model)
+  StringWriter writer = new StringWriter()
+  output.writeTo(writer);
+
+  return writer.toString()
 }
 
 // utility class to keep track of the line we are at
