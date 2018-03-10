@@ -73,9 +73,9 @@ def sendEmail( BillingRecord rec ) {
 // load email template and bind the record data and return the full text
 def getEmailContent( BillingRecord rec ) {
   def model = [
+    pageTitle: cfg.data.emailSubject,
     firstName: rec.firstName,
-    lastName: rec.lastName,
-    amount: 22
+    lastName: rec.lastName
   ]
 
   TemplateConfiguration tplCfg = new TemplateConfiguration()        

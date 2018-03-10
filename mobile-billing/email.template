@@ -1,8 +1,8 @@
 yieldUnescaped '<!DOCTYPE html>'                                                    
 html(lang:'en') {                                                                   
     head {                                                                          
-        meta('http-equiv':'"Content-Type" content="text/html; charset=utf-8"')      
-        title('Monthly Mobile Billing')                                                            
+        meta('http-equiv':'"Content-Type" content="text/html; charset=utf-8"')
+        title(pageTitle)
     }                                                                               
     body {                                                                          
         span('Hello ')
@@ -12,5 +12,34 @@ html(lang:'en') {
         span(',')
         p('We are sending you this email to tell you about your mobile usage ... so be careful!')
         p('Ut dictum tempor porta. Mauris tempus ullamcorper blandit. Mauris luctus, lorem vitae iaculis accumsan, enim nisi blandit ligula, sit amet congue elit nulla nec nisl. Praesent semper tempor metus id porta. Quisque neque ligula, condimentum id euismod ac, molestie a nibh. Quisque id dolor tellus. Duis ex quam, auctor et condimentum at, semper ut orci. Phasellus tincidunt placerat felis in vehicula.')
+
+        table {
+            thead {
+                tr {
+                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
+                        span('Jan')
+                    }
+                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
+                        span('Feb')
+                    }
+                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
+                        span('Mar')
+                    }
+                }
+            }
+            tbody {
+                tr {
+                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
+                        span('55.01')
+                    }
+                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
+                        span('55.01')
+                    }
+                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
+                        span('55.01')
+                    }
+                }
+            }
+        }
     }                                                                               
 }
