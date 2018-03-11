@@ -1,8 +1,9 @@
 Groovy Scripts
 ================
 Small repo containing various Groovy scripts to demo the basic capabilities of the language:
-* Loading and reading a file
+* Reading/writing a file
 * Communicating with REST APIs
+* Sending emails with Apache Commons Email
 
 ## Pre-requisites
 * Install Git 2.x
