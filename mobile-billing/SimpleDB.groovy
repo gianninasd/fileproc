@@ -21,7 +21,7 @@ class SimpleDB extends Config {
     if( this.data.db.containsKey( rec.phone ) ) {
       // if contains the record, update it
       rec2Update = this.data.db.get( rec.phone )
-      println "\ndbRec2: $rec2Update"
+      println "Found existing record"
 
       rec2Update.firstName = rec.firstName
       rec2Update.lastName = rec.lastName
@@ -29,6 +29,7 @@ class SimpleDB extends Config {
     else {
       // if doesn't contain the record, add it
       rec2Update = rec
+      println "Adding new record"
     }
 
     // update the amount for a month
@@ -36,7 +37,6 @@ class SimpleDB extends Config {
 
     // store it
     this.data.db.put( rec2Update.phone, rec2Update )    
-    //println "\ndb2: $data.db"
   }
 
   // stores the in-memory DB map to file in JSON format

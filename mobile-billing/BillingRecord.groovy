@@ -1,7 +1,6 @@
 // @author Dimitrios Gianninas
-// mobile billing record
+// mobile billing record, where the phone is the primary key
 class BillingRecord {
-  // the primary key
   String phone 
   String firstName
   String lastName
@@ -12,21 +11,7 @@ class BillingRecord {
   // the cost for each month
   def months = [:]
 
-  // update the billing amount for the specific month
-  def updateAmountForMonth( String month ) {
-    months[month] = amount
-    amount = "" // clear the current amount
-  }
-
   String toString() {
     return "BillingRecord[ phone=$phone, name=$firstName $lastName, amt=$amount, months=$months ]"
   }
-
-  /*public boolean equals( Object other ) {
-    return this.phone == other.phone
-  }
-
-  public int hashCode() {
-    return 1
-  }*/
 }
