@@ -30,7 +30,8 @@ html(lang:'en') {
                             ? 'padding:5px; text-align:center; border:solid 1px; width:45px; color:#ff0000'
                             : 'padding:5px; text-align:center; border:solid 1px; width:45px;'
                         td(style:cellStyle) {
-                            span(item)
+                            cellValue = item > 0 ? item.toString(): ''
+                            span(cellValue)
                         }
                     }
                 }
