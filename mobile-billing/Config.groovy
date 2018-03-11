@@ -13,7 +13,7 @@ class Config {
       this.data = slurper.parse( new File(configFile) )
     }
     catch( Exception ex ) {
-      println "ERROR Unable to load config file [$configFile]: " + ex
+      println "ERROR Unable to load file [$configFile]: " + ex
     }
   }
 }
