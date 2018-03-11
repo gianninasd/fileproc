@@ -6,9 +6,13 @@
 import groovy.text.*
 import groovy.text.markup.*
 import org.apache.commons.mail.*
+import groovy.json.JsonOutput
 
 // global variables
-Date today = new Date()
+// not using 'def' keyword or setting a type so it has global script scope
+today = new Date()
+months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+db = [:] // the in-memory database map of records
 
 println "\nGroovy Mobile Billing"
 println "-------------------------------"
@@ -23,7 +27,6 @@ catch( Exception ex ) {
 }
 
 // load config file
-// not using 'def' keyword or setting a type so it has global script scope
 cfg = new Config("config.json")
 
 // add the command line arguments
@@ -46,6 +49,22 @@ println "\n-------------------------------"
 println "Processed $RowCount.counter records"
 println "-------------------------------"
 
+storeDBToFile()
+
+// stores the in-memory DB map to file in JSON format
+def storeDBToFile() {
+  DBWrapper rootObj = new DBWrapper()
+  rootObj.db = db
+
+  String rootObjAsJson = JsonOutput.toJson(rootObj)
+
+  println "\nrootObjAsJson: $rootObjAsJson"
+
+  new File( cfg.data.dbFile ).withWriter('utf-8') { 
+      writer -> writer.writeLine rootObjAsJson 
+  } 
+}
+
 // function for parsing each line and calling the API
 def parseLine( String line ) {
   String [] elem = line.split(",")
@@ -58,6 +77,10 @@ def parseLine( String line ) {
     rec.amount = elem[3]
     
     println "\nRecord $RowCount.counter processing txn: $rec"
+
+    updateInMemoryDB( rec )
+
+    // send the email to the user and his manager
     sendEmail( rec )
   }
   catch( Exception ex ) {
@@ -65,6 +88,22 @@ def parseLine( String line ) {
   }
 
   RowCount.increase()
+}
+
+// update the in memory DB with the currently processing record
+def updateInMemoryDB( BillingRecord rec ) {
+  if( db.containsKey( rec.phone ) ) {
+    // if contains the record, update it
+    BillingRecord dbRec = db.get( rec.phone )
+    println "\ndbRec: $dbRec"
+  }
+  else {
+    // if doesn't contain the record, add it
+    rec.updateAmountForMonth( cfg.data.month )
+    db.put( rec.phone, rec )
+  }
+  
+  println "\ndb: $db"
 }
 
 // send email to a list of recipients
@@ -107,7 +146,6 @@ def validateCommandArguments( String[] arguments ) {
     throw new Exception("Missing one or more arguments: <month> <source file> <database file>")
   }
 
-  String [] months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
   String argMonth = arguments[0]
 
   if( !months.contains(argMonth) ) {
@@ -122,4 +160,9 @@ class RowCount {
   static void increase() {
     counter++
   }
+}
+
+// utility class so that we write the in-memory DB to file as JSON
+class DBWrapper {
+  Object db
 }
