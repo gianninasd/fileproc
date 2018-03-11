@@ -6,13 +6,11 @@
 import groovy.text.*
 import groovy.text.markup.*
 import org.apache.commons.mail.*
-import groovy.json.JsonOutput
 
 // global variables
 // not using 'def' keyword or setting a type so it has global script scope
 today = new Date()
 months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
-db = [:] // the in-memory database map of records
 
 println "\nGroovy Mobile Billing"
 println "-------------------------------"
@@ -34,6 +32,10 @@ cfg.data.month = args[0]
 cfg.data.sourceFile = args[1]
 cfg.data.dbFile = args[2]
 
+// load the previously store DB file into memory
+simpleDB = new SimpleDB( cfg.data.dbFile )
+println "\n simpleDB: $simpleDB.data \n"
+
 println "Processing file [$cfg.data.sourceFile] on $today"
 println "-------------------------------"
 
@@ -49,21 +51,7 @@ println "\n-------------------------------"
 println "Processed $RowCount.counter records"
 println "-------------------------------"
 
-storeDBToFile()
-
-// stores the in-memory DB map to file in JSON format
-def storeDBToFile() {
-  DBWrapper rootObj = new DBWrapper()
-  rootObj.db = db
-
-  String rootObjAsJson = JsonOutput.toJson(rootObj)
-
-  println "\nrootObjAsJson: $rootObjAsJson"
-
-  new File( cfg.data.dbFile ).withWriter('utf-8') { 
-      writer -> writer.writeLine rootObjAsJson 
-  } 
-}
+simpleDB.writeToFile()
 
 // function for parsing each line and calling the API
 def parseLine( String line ) {
@@ -78,9 +66,7 @@ def parseLine( String line ) {
     
     println "\nRecord $RowCount.counter processing txn: $rec"
 
-    updateInMemoryDB( rec )
-
-    // send the email to the user and his manager
+    simpleDB.update( cfg.data.month, rec )
     sendEmail( rec )
   }
   catch( Exception ex ) {
@@ -88,22 +74,6 @@ def parseLine( String line ) {
   }
 
   RowCount.increase()
-}
-
-// update the in memory DB with the currently processing record
-def updateInMemoryDB( BillingRecord rec ) {
-  if( db.containsKey( rec.phone ) ) {
-    // if contains the record, update it
-    BillingRecord dbRec = db.get( rec.phone )
-    println "\ndbRec: $dbRec"
-  }
-  else {
-    // if doesn't contain the record, add it
-    rec.updateAmountForMonth( cfg.data.month )
-    db.put( rec.phone, rec )
-  }
-  
-  println "\ndb: $db"
 }
 
 // send email to a list of recipients
@@ -160,9 +130,4 @@ class RowCount {
   static void increase() {
     counter++
   }
-}
-
-// utility class so that we write the in-memory DB to file as JSON
-class DBWrapper {
-  Object db
 }
