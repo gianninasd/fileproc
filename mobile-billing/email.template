@@ -16,27 +16,20 @@ html(lang:'en') {
         table {
             thead {
                 tr {
-                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
-                        span('Jan')
-                    }
-                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
-                        span('Feb')
-                    }
-                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
-                        span('Mar')
+                    allMonths.each { item ->
+                        td(style:'padding:5px; font-weight:bold; text-align:center; text-transform:uppercase; width:45px;') {
+                            span(item)
+                        }
                     }
                 }
             }
             tbody {
                 tr {
-                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
-                        span('55.01')
-                    }
-                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
-                        span('55.01')
-                    }
-                    td(style:'padding:5px; font-weight:bold; text-align:center; border:solid 1px; width:45px;') {
-                        span('55.01')
+                    months.each { item ->
+                        cellStyle = item > 90 ? 'padding:5px; text-align:center; border:solid 1px; width:45px; color:#ff0000': 'padding:5px; text-align:center; border:solid 1px; width:45px;'
+                        td(style:cellStyle) {
+                            span(item)
+                        }
                     }
                 }
             }

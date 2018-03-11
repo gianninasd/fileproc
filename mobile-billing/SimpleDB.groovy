@@ -15,6 +15,7 @@ class SimpleDB extends Config {
   }
 
   // update the in memory DB with the currently processing record
+  // returns the update record
   def update( String month, BillingRecord rec ) {
     BillingRecord rec2Update
 
@@ -36,7 +37,8 @@ class SimpleDB extends Config {
     rec2Update.months[month] = rec.amount
 
     // store it
-    this.data.db.put( rec2Update.phone, rec2Update )    
+    this.data.db.put( rec2Update.phone, rec2Update )
+    return rec2Update
   }
 
   // stores the in-memory DB map to file in JSON format
