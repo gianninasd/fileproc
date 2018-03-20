@@ -1,5 +1,9 @@
-// @author Dimitrios Gianninas
-// mobile billing record, where the phone is the primary key
+package dg.bill
+
+/**
+ * @author Dimitrios Gianninas
+ * mobile billing record, where the phone is the primary key
+ */
 class BillingRecord {
   String phone 
   String firstName

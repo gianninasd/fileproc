@@ -1,8 +1,11 @@
-// @author Dimitrios Gianninas
-// Sample Groovy script for reading a JSON config file
+package dg.bill
 
 import groovy.json.JsonSlurper
 
+/** 
+ * @author Dimitrios Gianninas
+ * Sample Groovy script for reading a JSON config file
+ */
 class Config {
 
   public def data

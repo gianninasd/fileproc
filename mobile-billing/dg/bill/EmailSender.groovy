@@ -1,10 +1,14 @@
-// @author Dimitrios Gianninas
-// prepares the email content using an HTML template file and sends the email using Apache Commons Mail
+package dg.bill
 
 import groovy.text.*
 import groovy.text.markup.*
 import org.apache.commons.mail.*
+import dg.bill.BillingRecord
 
+/**
+ * @author Dimitrios Gianninas
+ * prepares the email content using an HTML template file and sends the email using Apache Commons Mail
+ */
 class EmailSender {
 
   private String smtpHost

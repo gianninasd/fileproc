@@ -3,6 +3,11 @@
 
 @Grab('org.apache.commons:commons-email:1.5')
 
+import dg.bill.BillingRecord
+import dg.bill.Config
+import dg.bill.SimpleDB
+import dg.bill.EmailSender
+
 // global variables
 // not using 'def' keyword or setting a type so it has global script scope
 today = new Date()

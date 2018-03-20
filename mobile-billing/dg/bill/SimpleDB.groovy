@@ -1,9 +1,13 @@
-// @author Dimitrios Gianninas
-// Representation of an in-memory database of all mobile billing records
-// Allows for updates and storing to file for later re-loading
+package dg.bill
 
 import groovy.json.JsonOutput
+import dg.bill.BillingRecord
 
+/**
+ * @author Dimitrios Gianninas
+ * Representation of an in-memory database of all mobile billing records
+ * Allows for updates and storing to file for later re-loading
+ */
 class SimpleDB extends Config {
 
   String fileName
