@@ -9,20 +9,47 @@ import dg.bill.RecordValidator
  */
 class RecordValidatorTest extends GroovyTestCase {
 
+  RecordValidator val = new RecordValidator()
+  BillingRecord rec = new BillingRecord()
+
   void testSuccess() {
-    // create sample data
-    BillingRecord rec = new BillingRecord()
     rec.phone = "5141112233"
     rec.firstName = "Lisa"
     rec.lastName = "Hayes"
-    rec.amount = "1507 b"
+    rec.amount = "1507"
 
-    RecordValidator val = new RecordValidator()
     def errors = val.validate( rec )
-
-    println "errors>> " + errors
-
     assertEquals(0, errors.size())
-    //assertEquals("", x, actual)
+  }
+
+  void testBadPhone() {
+    rec.phone = "5141aa2233"
+    rec.firstName = "Lisa"
+    rec.lastName = "Hayes"
+    rec.amount = "1507"
+
+    def errors = val.validate( rec )
+    assertEquals("bad phone: 5141aa2233", errors.get(0))
+  }
+
+  void testBadName() {
+    rec.phone = "5141112233"
+    rec.firstName = ""
+    rec.lastName = "HayesLorem ipsum dolor sit amet dolor Lorem ipsum dolor sit amet"
+    rec.amount = "1507"
+
+    def errors = val.validate( rec )
+    assertEquals("bad firstName: ", errors.get(0))
+    assertEquals("bad lastName: HayesLorem ipsum dolor sit amet dolor Lorem ipsum dolor sit amet", errors.get(1))
+  }
+
+  void testBadAmount() {
+    rec.phone = "5141112233"
+    rec.firstName = "Lisa"
+    rec.lastName = "Hayes"
+    rec.amount = "a.b"
+
+    def errors = val.validate( rec )
+    assertEquals("bad amount: a.b", errors.get(0))
   }
 }
