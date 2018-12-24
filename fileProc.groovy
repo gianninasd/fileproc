@@ -11,37 +11,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import groovy.util.logging.Slf4j
-import groovy.sql.Sql
-import org.apache.commons.dbcp2.BasicDataSource
 /*import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.* */
 
-// global variables
-Date today = new Date()
-String fileName = "cc.csv"
+import dg.RecordDAO
 
+// init logger
 def logger = LoggerFactory.getLogger('fileProc')
-logger.info('Groovy ' + GroovySystem.version + ' File Processor running on ' + System.properties['os.name'] + ' ' + System.properties['os.version'])
-logger.info "Arguments: $args"
-logger.info "Processing file [$fileName] on $today"
-logger.info "-------------------------------"
+
+def osName = System.properties['os.name']
+def osVersion = System.properties['os.version']
+logger.info "Groovy $GroovySystem.version File Processor running on $osName $osVersion"
 
 // load application config
 ConfigObject config = new ConfigSlurper().parse(new File('config.groovy').toURI().toURL())
 
-def ds = new BasicDataSource()
-ds.url = config.db.url
-ds.username = config.db.username
-ds.password = config.db.password
-ds.driverClassName = config.db.driverClassName
-ds.minIdle = 5 
-ds.maxIdle = 10
-ds.maxOpenPreparedStatements = 100
+// TODO decrypt
+// TODO line parser
+// TODO multi-threading
 
-def sql = new Sql(ds)
-sql.eachRow('select record_id, creation_date, raw_record from fileproc.file_records where status_cde = "ERROR" order by creation_date asc limit 10') { row ->
-  logger.info 'ds>> ' + row.raw_record
+RecordDAO recordDAO = new RecordDAO(config: config.db)
+def recs = recordDAO.getAllWithStatusInitial()
+
+logger.info "Processing ${recs.size()} record(s)"
+
+for(rec in recs) {
+  logger.info "ds1>> $rec.rawData"
 }
-sql.close()

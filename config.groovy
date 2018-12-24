@@ -4,4 +4,7 @@ db {
   username = 'root'
   password = 'root'
   driverClassName = 'com.mysql.cj.jdbc.Driver'
+  minIdle = 5
+  maxIdle = 10
+  maxOpenPreparedStatements = 100
 }
