@@ -21,4 +21,4 @@ Below are some reference web sites
 * Docs: http://groovy-lang.org/documentation.html
 * Tutorials:
   * https://mrhaki.blogspot.com/
-* GMail SMTP setup: `https://support.google.com/a/answer/176600?hl=en`
+* GMail SMTP setup: https://support.google.com/a/answer/176600?hl=en
