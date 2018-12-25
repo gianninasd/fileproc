@@ -17,6 +17,7 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.* */
 
 import dg.RecordDAO
+import dg.CryptoUtil
 
 // init logger
 def logger = LoggerFactory.getLogger('fileProc')
@@ -28,15 +29,16 @@ logger.info "Groovy $GroovySystem.version File Processor running on $osName $osV
 // load application config
 ConfigObject config = new ConfigSlurper().parse(new File('config.groovy').toURI().toURL())
 
-// TODO decrypt
 // TODO line parser
 // TODO multi-threading
 
 RecordDAO recordDAO = new RecordDAO(config: config.db)
 def recs = recordDAO.getAllWithStatusInitial()
+def cryptoUtil = new CryptoUtil(secretKey: 'w3b_lwEsEA8i8Lh0Wld78HZYOjXSbo5bM3tS5gcKCmc=')
 
 logger.info "Processing ${recs.size()} record(s)"
 
 for(rec in recs) {
   logger.info "ds1>> $rec.rawData"
+  logger.info "decrypt>> ${cryptoUtil.decrypt(rec.rawData)}"
 }

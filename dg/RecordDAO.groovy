@@ -14,7 +14,7 @@ class RecordDAO extends AbstractDAO {
 
   // sql statement constants
   static def LOAD_ALL_INITIAL = 'select record_id, creation_date, raw_record from fileproc.file_records ' \
-    + 'where status_cde = "ERROR" order by creation_date asc limit 10'
+    + 'where status_cde = "INITIAL" order by creation_date asc limit 10'
 
   ConfigObject config
 
