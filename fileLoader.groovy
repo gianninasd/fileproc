@@ -49,16 +49,19 @@ try {
         // open file and loop for each line
         file.eachLine() { line ->
           logger.info ">> $line"
+          //service.storeRecord(fileId, line)
           cnt += 1
         }
 
         logger.info "Finished storing $cnt records for file id $fileId"
+        service.createAck(workingDir,fileName,'0','File received')
       }
       catch( FileNotFoundException ex ) {
         logger.warn("File [$fullFileName] not found")
       }
       catch( DupeFileException ex ) {
         logger.warn("File [$fullFileName] already uploaded in the last 24 hrs")
+        service.createAck(workingDir,fileName,'-1','Duplicate file')
       }
     }
   }
@@ -68,4 +71,5 @@ catch( SecretKeyNotFoundException ex ) {
 }
 catch( Exception ex ) {
   logger.error("Unknown error occured!?", ex)
+  service.createAck(workingDir,fileName,'-99','Unknown error')
 }

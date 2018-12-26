@@ -15,6 +15,13 @@ class FileService {
     this.fileDAO = new FileDAO(config: config)
   }
 
+  // generates an ack file in the folder specified
+  def createAck( path, fileName, responseCode, responseMessage ) {
+    new File(path + '/' + fileName + '.ack.csv').withWriter('UTF-8') { writer ->
+      writer.writeLine 'ACK,' + responseCode + ',' + responseMessage
+    }
+  }
+
   // extracts only the filename without the extension
   def extractFileName( fullFileName ) {
     def idx = fullFileName.indexOf('.csv')
