@@ -3,16 +3,19 @@ package dg
 import java.security.MessageDigest
 import dg.DupeFileException
 import dg.FileDAO
+import dg.CryptoUtil
 
 // Service class for all file operations
 class FileService {
   
   def secretKey
   def fileDAO
+  def recordDAO
 
   def FileService( secretKey, config ) {
     this.secretKey = secretKey
     this.fileDAO = new FileDAO(config: config)
+    this.recordDAO = new RecordDAO(config: config)
   }
 
   // generates an ack file in the folder specified
@@ -39,6 +42,14 @@ class FileService {
       throw new DupeFileException()
 
     return fileId
+  }
+
+  // store the raw record in encrypted format
+  def storeRecord( fileId, record ) {
+    def crypto = new CryptoUtil(secretKey: this.secretKey)
+    def token = crypto.encrypt(record)
+    
+    recordDAO.createInitial(fileId, token)
   }
 
   // generates the hash value of the file contents

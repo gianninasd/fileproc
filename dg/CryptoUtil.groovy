@@ -31,7 +31,7 @@ class CryptoUtil {
 
     Cipher cipher = Cipher.getInstance(TRANSFORM_ALGO)
     cipher.init(Cipher.ENCRYPT_MODE, ss, ivspec)
-    def cipherBytes = c.doFinal(value.getBytes(ENCODING))
+    def cipherBytes = cipher.doFinal(value.getBytes(ENCODING))
     return Base64.getEncoder().encodeToString(cipherBytes)
   }
 

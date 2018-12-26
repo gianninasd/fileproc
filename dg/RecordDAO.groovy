@@ -13,10 +13,23 @@ class Record {
 class RecordDAO extends AbstractDAO {
 
   // sql statement constants
+  static def CREATE = 'insert into file_records (file_id,status_cde,raw_record,creation_date,modification_date) ' \
+    + 'values (:fileId,:status,:rawRecord,now(),now())'
   static def LOAD_ALL_INITIAL = 'select record_id, creation_date, raw_record from fileproc.file_records ' \
     + 'where status_cde = "INITIAL" order by creation_date asc limit 10'
 
   ConfigObject config
+
+  // create a new record entry
+  def createInitial( fileId, record ) {
+    def data = [
+      'fileId': fileId,
+      'status': 'INITIAL',
+      'rawRecord': record
+    ]
+
+    insert(CREATE, data)
+  }
 
   // returns all the records in an initial status
   def getAllWithStatusInitial() {

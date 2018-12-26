@@ -20,20 +20,8 @@ class FileDAO extends AbstractDAO {
       'filename': fileName,
       'filehash': fileHash
     ]
-    Sql sql = null
-    def id = 0
 
-    try {
-      def ds = getDataSource(config)
-      sql = new Sql(ds)
-      def result = sql.executeInsert(CREATE, data)
-      id = result[0][0]
-    }
-    finally {
-      sql.close()
-    }
-
-    return id
+    return insert(CREATE, data)
   }
 
   // returns the number of times the filehash occurs in the last 24 hrs

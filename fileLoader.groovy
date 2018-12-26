@@ -34,36 +34,40 @@ try {
   def workingDir = config.config.workingDir
   def service = new FileService(secretKey, config.db)
 
-  logger.info "Processing files in $workingDir"
+  while( true ) {
+    logger.info "Processing files in $workingDir"
 
-  new File(workingDir).eachFile { file ->
-    if( file.isFile() ) {
-      try {
-        fullFileName = file.getName()
-        fileName = service.extractFileName(fullFileName)
-        fileId = service.create(workingDir, fullFileName)
-        
-        logger.info "Processing [$fullFileName] records with file id $fileId"
-        cnt = 0
+    new File(workingDir).eachFile { file ->
+      if( file.isFile() ) {
+        try {
+          fullFileName = file.getName()
+          fileName = service.extractFileName(fullFileName)
+          fileId = service.create(workingDir, fullFileName)
+          
+          logger.info "Processing [$fullFileName] records with file id $fileId"
+          cnt = 0
 
-        // open file and loop for each line
-        file.eachLine() { line ->
-          logger.info ">> $line"
-          //service.storeRecord(fileId, line)
-          cnt += 1
+          // loop thru each line in file
+          file.eachLine() { line ->
+            service.storeRecord(fileId, line)
+            cnt += 1
+          }
+
+          logger.info "Finished storing $cnt records for file id $fileId"
+          service.createAck(workingDir,fileName,'0','File received')
         }
-
-        logger.info "Finished storing $cnt records for file id $fileId"
-        service.createAck(workingDir,fileName,'0','File received')
-      }
-      catch( FileNotFoundException ex ) {
-        logger.warn("File [$fullFileName] not found")
-      }
-      catch( DupeFileException ex ) {
-        logger.warn("File [$fullFileName] already uploaded in the last 24 hrs")
-        service.createAck(workingDir,fileName,'-1','Duplicate file')
+        catch( FileNotFoundException ex ) {
+          logger.warn("File [$fullFileName] not found")
+        }
+        catch( DupeFileException ex ) {
+          logger.warn("File [$fullFileName] already uploaded in the last 24 hrs")
+          service.createAck(workingDir,fileName,'-1','Duplicate file')
+        }
       }
     }
+
+    logger.info('Going to sleep for 60s...')
+    sleep(60000)
   }
 }
 catch( SecretKeyNotFoundException ex ) {
