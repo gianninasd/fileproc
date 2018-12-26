@@ -3,6 +3,8 @@
 @GrabConfig(systemClassLoader=true)
 @Grab('org.slf4j:slf4j-api:1.7.25')
 @Grab('ch.qos.logback:logback-classic:1.2.3')
+@Grab('mysql:mysql-connector-java:8.0.13')
+@Grab('org.apache.commons:commons-dbcp2:2.5.0')
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import groovy.util.logging.Slf4j
 
 import dg.SecretKeyNotFoundException
+import dg.DupeFileException
 import dg.FileService
 
 // init logger
@@ -29,26 +32,34 @@ try {
 
   def cnt = 0
   def workingDir = config.config.workingDir
-  def service = new FileService(secretKey)
+  def service = new FileService(secretKey, config.db)
 
   logger.info "Processing files in $workingDir"
 
   new File(workingDir).eachFile { file ->
     if( file.isFile() ) {
-      fullFileName = file.getName()
-      fileName = service.extractFileName(fullFileName)
-      fileId = service.create(workingDir, fullFileName)
-      
-      logger.info "Processing $fullFileName records with file id $fileId"
-      cnt = 0
+      try {
+        fullFileName = file.getName()
+        fileName = service.extractFileName(fullFileName)
+        fileId = service.create(workingDir, fullFileName)
+        
+        logger.info "Processing [$fullFileName] records with file id $fileId"
+        cnt = 0
 
-      // open file and loop for each line
-      file.eachLine() { line ->
-        logger.info ">> $line"
-        cnt += 1
+        // open file and loop for each line
+        file.eachLine() { line ->
+          logger.info ">> $line"
+          cnt += 1
+        }
+
+        logger.info "Finished storing $cnt records for file id $fileId"
       }
-
-      logger.info "Finished storing $cnt records for file id "
+      catch( FileNotFoundException ex ) {
+        logger.warn("File [$fullFileName] not found")
+      }
+      catch( DupeFileException ex ) {
+        logger.warn("File [$fullFileName] already uploaded in the last 24 hrs")
+      }
     }
   }
 }

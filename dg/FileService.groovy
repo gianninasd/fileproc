@@ -2,14 +2,17 @@ package dg
 
 import java.security.MessageDigest
 import dg.DupeFileException
+import dg.FileDAO
 
 // Service class for all file operations
 class FileService {
   
   def secretKey
+  def fileDAO
 
-  def FileService( secretKey ) {
+  def FileService( secretKey, config ) {
     this.secretKey = secretKey
+    this.fileDAO = new FileDAO(config: config)
   }
 
   // extracts only the filename without the extension
@@ -22,14 +25,13 @@ class FileService {
   // raises DupeFileException if file was previously uploaded in the last 24 hrs
   def create( workingDir, fileName ) {
     def fileHash = calculateHash(workingDir, fileName)
-    //cnt = fileDAO.countInLast24hrs(fileHash)
-
-    //fileId = fileDAO.create(fileName, fileHash)
-    def cnt = 0
+    def cnt = fileDAO.countInLast24hrs(fileHash)
+    def fileId = fileDAO.create(fileName, fileHash)
+    
     if( cnt > 0 )
-      raise DupeFileException()
+      throw new DupeFileException()
 
-    return 0
+    return fileId
   }
 
   // generates the hash value of the file contents
