@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import groovy.util.logging.Slf4j
 
 import dg.SecretKeyNotFoundException
+import dg.FileService
 
 // init logger
 def logger = LoggerFactory.getLogger('fileProc')
@@ -28,14 +29,26 @@ try {
 
   def cnt = 0
   def workingDir = config.config.workingDir
+  def service = new FileService(secretKey)
+
   logger.info "Processing files in $workingDir"
 
   new File(workingDir).eachFile { file ->
-    logger.info ">> $file"
-
     if( file.isFile() ) {
-      logger.info "Processing $file records with file id "
+      fullFileName = file.getName()
+      fileName = service.extractFileName(fullFileName)
+      fileId = service.create(workingDir, fullFileName)
+      
+      logger.info "Processing $fullFileName records with file id $fileId"
       cnt = 0
+
+      // open file and loop for each line
+      file.eachLine() { line ->
+        logger.info ">> $line"
+        cnt += 1
+      }
+
+      logger.info "Finished storing $cnt records for file id "
     }
   }
 }
