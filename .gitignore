@@ -2,6 +2,7 @@
 
 # generated folders
 logs
+working
 
 # generated files
 *.log
