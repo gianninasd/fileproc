@@ -24,4 +24,5 @@ Below are some reference web sites
 * Tutorials:
   * https://mrhaki.blogspot.com/
   * https://www.youtube.com/watch?v=fHhf1xG0pIA&t=72s
+  * https://www.baeldung.com/java-future
 * GMail SMTP setup: https://support.google.com/a/answer/176600?hl=en

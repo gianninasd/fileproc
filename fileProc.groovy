@@ -16,6 +16,12 @@ import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.* */
 
+import java.util.concurrent.Executors
+import java.util.concurrent.ExecutorCompletionService
+import java.util.concurrent.Future
+import java.util.concurrent.Callable
+
+import dg.SecretKeyNotFoundException
 import dg.RecordDAO
 import dg.CryptoUtil
 
@@ -29,16 +35,67 @@ logger.info "Groovy $GroovySystem.version File Processor running on $osName $osV
 // load application config
 ConfigObject config = new ConfigSlurper().parse(new File('config.groovy').toURI().toURL())
 
-// TODO line parser
-// TODO multi-threading
+try {
+  def secretKey = System.getenv('DG_SECRET_KEY')
+  if( secretKey == null )
+    throw new SecretKeyNotFoundException()
 
-RecordDAO recordDAO = new RecordDAO(config: config.db)
-def recs = recordDAO.getAllWithStatusInitial()
-def cryptoUtil = new CryptoUtil(secretKey: 'w3b_lwEsEA8i8Lh0Wld78HZYOjXSbo5bM3tS5gcKCmc=')
+  // TODO line parser
+  // TODO unit tests
 
-logger.info "Processing ${recs.size()} record(s)"
+  RecordDAO recordDAO = new RecordDAO(config: config.db)
+  def cryptoUtil = new CryptoUtil(secretKey: secretKey)
 
-for(rec in recs) {
-  logger.info "ds1>> $rec.rawData"
-  logger.info "decrypt>> ${cryptoUtil.decrypt(rec.rawData)}"
+  while( true ) {
+    // get next records to process and reset statistics
+    def recs = recordDAO.getAllWithStatusInitial()
+    logger.info "Processing ${recs.size()} record(s)"
+    def requestCnt = 0
+    def successCnt = 0
+    def failedCnt = 0
+
+    def executor = Executors.newFixedThreadPool(5)
+    def ecs = new ExecutorCompletionService(executor)
+    
+    for(rec in recs) {
+      logger.info "ds1>> $rec.rawData"
+      line = cryptoUtil.decrypt(rec.rawData)
+      ecs.submit( new ProcessRequest(recordId: rec.recordId, line: line) )
+
+      Future future
+      while( (future = ecs.poll()) != null ) {
+        logger.info "f>> ${future.get()}"
+        requestCnt++
+      }
+    }
+
+    logger.info "Processed $requestCnt record(s) in 0 - $successCnt succeeded, $failedCnt failed"
+    sleep(60000)
+  }
+
+  //executor.shutdown()
+  logger.info "done!"
+}
+catch( SecretKeyNotFoundException ex ) {
+  logger.error("Encryption key not found in environment variable DG_SECRET_KEY")
+}
+catch( Exception ex ) {
+  logger.error("Unknown error occured!?", ex)
+}
+
+// class that will execute within a thread pool and calls a remote API
+class ProcessRequest implements Callable {
+  def logger = LoggerFactory.getLogger('ProcessRequest')
+
+  def recordId
+  def line
+
+  def call() {
+    try {
+      return "here!>> $recordId $line"
+    }
+    catch( Exception ex ) {
+      return "Exception"
+    }    
+  }
 }
