@@ -11,10 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import groovy.util.logging.Slf4j
-/*import groovy.json.JsonOutput
-import groovyx.net.http.HTTPBuilder
-import static groovyx.net.http.ContentType.*
-import static groovyx.net.http.Method.* */
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ExecutorCompletionService
@@ -24,6 +20,9 @@ import java.util.concurrent.Callable
 import dg.SecretKeyNotFoundException
 import dg.RecordDAO
 import dg.CryptoUtil
+import dg.CardResponse
+import dg.LineParser
+import dg.CardClient
 
 // init logger
 def logger = LoggerFactory.getLogger('fileProc')
@@ -40,9 +39,6 @@ try {
   if( secretKey == null )
     throw new SecretKeyNotFoundException()
 
-  // TODO line parser
-  // TODO unit tests
-
   RecordDAO recordDAO = new RecordDAO(config: config.db)
   def cryptoUtil = new CryptoUtil(secretKey: secretKey)
 
@@ -58,15 +54,19 @@ try {
     def ecs = new ExecutorCompletionService(executor)
     
     for(rec in recs) {
-      logger.info "ds1>> $rec.rawData"
       line = cryptoUtil.decrypt(rec.rawData)
-      ecs.submit( new ProcessRequest(recordId: rec.recordId, line: line) )
+      ecs.submit( new ProcessRequest(config: config, recordId: rec.recordId, line: line) )
+      
+    }
 
-      Future future
-      while( (future = ecs.poll()) != null ) {
-        logger.info "f>> ${future.get()}"
-        requestCnt++
-      }
+    Future future = ecs.poll()
+    logger.info "ff>> $future"
+    //while( (future = ecs.poll()) != null ) {
+    while( future != null ) {
+      logger.info "getting..."
+      logger.info "f>> ${future.get()}"
+      requestCnt++
+      future = ecs.poll()
     }
 
     logger.info "Processed $requestCnt record(s) in 0 - $successCnt succeeded, $failedCnt failed"
@@ -87,15 +87,36 @@ catch( Exception ex ) {
 class ProcessRequest implements Callable {
   def logger = LoggerFactory.getLogger('ProcessRequest')
 
+  def config
   def recordId
   def line
 
   def call() {
+    def guid = UUID.randomUUID().toString()
+    def client = new CardClient(
+      cardUrl: config.url, 
+      accountId: config.accountId, 
+      apiUser: config.apiUser, 
+      apiPass: config.apiPass)
+
+    //logger.info "call >> $guid"
+    //return "here!"
     try {
-      return "here!>> $recordId $line"
+      def parser = new LineParser()
+      def lineReq = parser.parse(recordId, line)
+      lineReq.guid = guid
+      lineReq.ref = guid // we do this to make sure records work due to test data, not needed in PROD
+
+      logger.info "Sending reference ${lineReq.ref} with amount ${lineReq.amount}"
+      //dao.updateSent(lineReq)
+
+      return client.purchase( lineReq )
     }
     catch( Exception ex ) {
-      return "Exception"
-    }    
+      logger.warn "$guid Line processing failed: $ex"
+      def resp = new CardResponse(recordId, 'ERROR', guid)
+      resp.message = ex.getMessage()
+      return resp
+    }
   }
 }

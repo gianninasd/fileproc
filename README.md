@@ -29,3 +29,4 @@ Below are some reference web sites
   * https://www.baeldung.com/java-future
   * http://java-regex-tester.appspot.com/
 * GMail SMTP setup: https://support.google.com/a/answer/176600?hl=en
+* Http Builder: https://github.com/jgritman/httpbuilder
