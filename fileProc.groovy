@@ -49,25 +49,27 @@ try {
     def requestCnt = 0
     def successCnt = 0
     def failedCnt = 0
+    def submitCnt = 0
 
     def executor = Executors.newFixedThreadPool(5)
     def ecs = new ExecutorCompletionService(executor)
     
     for(rec in recs) {
       line = cryptoUtil.decrypt(rec.rawData)
-      ecs.submit( new ProcessRequest(config: config, recordId: rec.recordId, line: line) )
-      
+      ecs.submit( new ProcessRequest(config: config.config, recordId: rec.recordId, line: line) )
+      submitCnt++
     }
 
-    Future future = ecs.poll()
-    logger.info "ff>> $future"
-    //while( (future = ecs.poll()) != null ) {
-    while( future != null ) {
-      logger.info "getting..."
-      logger.info "f>> ${future.get()}"
-      requestCnt++
-      future = ecs.poll()
-    }
+    // loop until we have received the response for each submitted record
+    Future future
+    while( submitCnt > 0 ) {
+      while( (future = ecs.poll()) != null ) {
+        logger.info "getting..."
+        logger.info "f>> ${future.get()}"
+        requestCnt++
+        submitCnt--
+      }
+    }    
 
     logger.info "Processed $requestCnt record(s) in 0 - $successCnt succeeded, $failedCnt failed"
     sleep(60000)
@@ -99,8 +101,6 @@ class ProcessRequest implements Callable {
       apiUser: config.apiUser, 
       apiPass: config.apiPass)
 
-    //logger.info "call >> $guid"
-    //return "here!"
     try {
       def parser = new LineParser()
       def lineReq = parser.parse(recordId, line)
@@ -113,7 +113,7 @@ class ProcessRequest implements Callable {
       return client.purchase( lineReq )
     }
     catch( Exception ex ) {
-      logger.warn "$guid Line processing failed: $ex"
+      logger.warn "$guid with $recordId - Line processing failed: $ex"
       def resp = new CardResponse(recordId, 'ERROR', guid)
       resp.message = ex.getMessage()
       return resp
