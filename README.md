@@ -18,6 +18,8 @@ Now follow these steps to launch both applications:
 
 You will see processing output on your console and in a file called `logs/fileProc.log`
 
+To execute all unit tests from the root folder, from the console run: `groovy allTests.groovy`
+
 ## References
 Below are some reference web sites
 * Docs: http://groovy-lang.org/documentation.html
@@ -25,4 +27,5 @@ Below are some reference web sites
   * https://mrhaki.blogspot.com/
   * https://www.youtube.com/watch?v=fHhf1xG0pIA&t=72s
   * https://www.baeldung.com/java-future
+  * http://java-regex-tester.appspot.com/
 * GMail SMTP setup: https://support.google.com/a/answer/176600?hl=en
