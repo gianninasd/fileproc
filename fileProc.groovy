@@ -56,7 +56,7 @@ try {
     
     for(rec in recs) {
       line = cryptoUtil.decrypt(rec.rawData)
-      ecs.submit( new ProcessRequest(config: config.config, recordId: rec.recordId, line: line) )
+      ecs.submit( new ProcessRequest(recordDAO, config.config, rec.recordId, line) )
       submitCnt++
     }
 
@@ -64,8 +64,15 @@ try {
     Future future
     while( submitCnt > 0 ) {
       while( (future = ecs.poll()) != null ) {
-        logger.info "getting..."
-        logger.info "f>> ${future.get()}"
+        CardResponse result = future.get()
+        logger.info result.toString()
+        recordDAO.updateResponse(result)
+
+        if( result.decision == 'SUCCESS' )
+          successCnt++
+        else if( result.decision == 'FAILED' )
+          failedCnt++
+
         requestCnt++
         submitCnt--
       }
@@ -74,9 +81,6 @@ try {
     logger.info "Processed $requestCnt record(s) in 0 - $successCnt succeeded, $failedCnt failed"
     sleep(60000)
   }
-
-  //executor.shutdown()
-  logger.info "done!"
 }
 catch( SecretKeyNotFoundException ex ) {
   logger.error("Encryption key not found in environment variable DG_SECRET_KEY")
@@ -89,9 +93,17 @@ catch( Exception ex ) {
 class ProcessRequest implements Callable {
   def logger = LoggerFactory.getLogger('ProcessRequest')
 
+  def recordDAO
   def config
   def recordId
   def line
+
+  def ProcessRequest( recordDAO, config, recordId, line ) {
+    this.recordDAO = recordDAO
+    this.config = config
+    this.recordId = recordId
+    this.line = line
+  }
 
   def call() {
     def guid = UUID.randomUUID().toString()
@@ -108,7 +120,7 @@ class ProcessRequest implements Callable {
       lineReq.ref = guid // we do this to make sure records work due to test data, not needed in PROD
 
       logger.info "Sending reference ${lineReq.ref} with amount ${lineReq.amount}"
-      //dao.updateSent(lineReq)
+      recordDAO.updateSent(lineReq)
 
       return client.purchase( lineReq )
     }

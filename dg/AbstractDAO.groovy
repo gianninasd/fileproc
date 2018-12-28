@@ -40,4 +40,21 @@ abstract class AbstractDAO {
 
     return id
   }
+
+  // executes UPDATE database operation using the SQL statement and data provided
+  def update( sqlStmt, data ) {
+    Sql sql = null
+    def cnt = 0
+
+    try {
+      def ds = getDataSource(config)
+      sql = new Sql(ds)
+      cnt = sql.executeUpdate(sqlStmt, data)
+    }
+    finally {
+      sql.close() // returns connection to the pool
+    }
+
+    return cnt
+  }
 }

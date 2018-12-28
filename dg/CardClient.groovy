@@ -1,8 +1,5 @@
 package dg
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
@@ -17,8 +14,6 @@ class CardClient {
   def apiUser = ''
   def apiPass = ''
   def accountId = ''
-
-  static def logger = LoggerFactory.getLogger('CardClient')
 
   // sends a purchase request to a remote REST API
   def purchase( cardRequest ) {
@@ -57,7 +52,6 @@ class CardClient {
         body = builder.toString()
 
         response.success = { resp, json ->
-          logger.info "POST Success for id $json.id with status: $json.status"
           result = new CardResponse(cardRequest.recordId, 'SUCCESS', cardRequest.ref)
           result.txnId = json.id
           result.ref = json.merchantRefNum
@@ -65,7 +59,6 @@ class CardClient {
         }
 
         response.failure = { resp, json ->
-          logger.warn "POST Failed with status $resp.statusLine.statusCode: Error code $json.error.code for id: $json.id"
           result = new CardResponse(cardRequest.recordId, 'FAILED', cardRequest.ref)
           result.txnId = json.id
           result.ref = json.merchantRefNum
@@ -75,7 +68,6 @@ class CardClient {
       }
     }
     catch( Exception ex ) {
-      logger.error "ERROR Unable to call API: " + ex
       result = new CardResponse(cardRequest.recordId, 'ERROR', cardRequest.ref)
     }
 
