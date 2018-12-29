@@ -1,4 +1,4 @@
-// Sample Groovy script for reading a CSV file and calling an external REST API
+// Groovy script for reading records from a database and calling an external REST API in a multi-threaded fashion
 
 @GrabConfig(systemClassLoader=true)
 @Grab('org.codehaus.groovy.modules.http-builder:http-builder:0.7')
@@ -10,21 +10,18 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import groovy.util.logging.Slf4j
 import groovy.time.TimeCategory
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ExecutorCompletionService
 import java.util.concurrent.Future
-import java.util.concurrent.Callable
 import java.util.Date
 
 import dg.SecretKeyNotFoundException
 import dg.RecordDAO
 import dg.CryptoUtil
 import dg.CardResponse
-import dg.LineParser
-import dg.CardClient
+import dg.ProcessRequest
 
 // init logger
 def logger = LoggerFactory.getLogger('fileProc')
@@ -93,48 +90,4 @@ catch( SecretKeyNotFoundException ex ) {
 }
 catch( Exception ex ) {
   logger.error("Unknown error occured!?", ex)
-}
-
-// class that will execute within a thread pool and calls a remote API
-class ProcessRequest implements Callable {
-  def logger = LoggerFactory.getLogger('ProcessRequest')
-
-  def recordDAO
-  def config
-  def recordId
-  def line
-
-  def ProcessRequest( recordDAO, config, recordId, line ) {
-    this.recordDAO = recordDAO
-    this.config = config
-    this.recordId = recordId
-    this.line = line
-  }
-
-  def call() {
-    def guid = UUID.randomUUID().toString()
-    def client = new CardClient(
-      cardUrl: config.url, 
-      accountId: config.accountId, 
-      apiUser: config.apiUser, 
-      apiPass: config.apiPass)
-
-    try {
-      def parser = new LineParser()
-      def lineReq = parser.parse(recordId, line)
-      lineReq.guid = guid
-      lineReq.ref = guid // we do this to make sure records work due to test data, not needed in PROD
-
-      logger.info "Sending reference ${lineReq.ref} with amount ${lineReq.amount}"
-      recordDAO.updateSent(lineReq)
-
-      return client.purchase( lineReq )
-    }
-    catch( Exception ex ) {
-      logger.warn "$guid with $recordId - Line processing failed: $ex"
-      def resp = new CardResponse(recordId, 'ERROR', guid)
-      resp.message = ex.getMessage()
-      return resp
-    }
-  }
 }
