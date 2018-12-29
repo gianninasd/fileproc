@@ -11,11 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import groovy.util.logging.Slf4j
+import groovy.time.TimeCategory
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ExecutorCompletionService
 import java.util.concurrent.Future
 import java.util.concurrent.Callable
+import java.util.Date
 
 import dg.SecretKeyNotFoundException
 import dg.RecordDAO
@@ -39,10 +41,14 @@ try {
   if( secretKey == null )
     throw new SecretKeyNotFoundException()
 
+  def executor = Executors.newFixedThreadPool(config.client.maxThreads)
+  def ecs = new ExecutorCompletionService(executor)
   RecordDAO recordDAO = new RecordDAO(config: config.db)
   def cryptoUtil = new CryptoUtil(secretKey: secretKey)
 
   while( true ) {
+    def startTime = new Date()
+
     // get next records to process and reset statistics
     def recs = recordDAO.getAllWithStatusInitial()
     logger.info "Processing ${recs.size()} record(s)"
@@ -51,12 +57,9 @@ try {
     def failedCnt = 0
     def submitCnt = 0
 
-    def executor = Executors.newFixedThreadPool(5)
-    def ecs = new ExecutorCompletionService(executor)
-    
     for(rec in recs) {
       line = cryptoUtil.decrypt(rec.rawData)
-      ecs.submit( new ProcessRequest(recordDAO, config.config, rec.recordId, line) )
+      ecs.submit( new ProcessRequest(recordDAO, config.client, rec.recordId, line) )
       submitCnt++
     }
 
@@ -76,9 +79,12 @@ try {
         requestCnt++
         submitCnt--
       }
-    }    
+    }
 
-    logger.info "Processed $requestCnt record(s) in 0 - $successCnt succeeded, $failedCnt failed"
+    def endTime = new Date()
+    def duration = TimeCategory.minus(endTime, startTime)
+    logger.info "Processed $requestCnt record(s) in ${duration} - $successCnt succeeded, $failedCnt failed"
+    logger.info "Going to sleep for 60s..."
     sleep(60000)
   }
 }

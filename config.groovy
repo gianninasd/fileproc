@@ -1,5 +1,5 @@
 // application config information
-config {
+client {
   accountId = 1001289630
   url = 'https://api.test.paysafe.com'
   apiUser = 'test_assl1'

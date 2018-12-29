@@ -4,6 +4,7 @@ import junit.textui.TestRunner
 
 import test.LineParserTest
 import test.CardRequestTest
+import test.CardResponseTest
 
 // executes all test classes in the suite
 class AllTests { 
@@ -11,6 +12,7 @@ class AllTests {
       def allTests = new GroovyTestSuite() 
       allTests.addTestSuite(LineParserTest.class)
       allTests.addTestSuite(CardRequestTest.class)
+      allTests.addTestSuite(CardResponseTest.class)
       return allTests 
    } 
 } 
