@@ -15,6 +15,7 @@ There two seperate applications you need to launch, the Loader and the Processor
 
 Now follow these steps to launch both applications:
 * Open a console and run `groovy fileLoader.groovy` ... it will monitor for csv files in the `working` sub-folder
+* Open a second console and run `groovy fileProc.groovy` ... it will monitor the database for records in INITIAL status
 
 You will see processing output on your console and in a file called `logs/fileProc.log`
 
