@@ -25,6 +25,7 @@ To execute all unit tests from the root folder, from the console run: `groovy al
 Below are some reference web sites
 * Docs: http://groovy-lang.org/documentation.html
 * Tutorials:
+  * https://www.tutorialspoint.com/groovy/index.htm
   * https://mrhaki.blogspot.com/
   * https://www.youtube.com/watch?v=fHhf1xG0pIA&t=72s
   * https://www.baeldung.com/java-future
