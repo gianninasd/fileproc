@@ -61,6 +61,10 @@ try {
           logger.warn("File [$fullFileName] already uploaded in the last 24 hrs")
           service.createAck(workingDir,fileName,'-1','Duplicate file')
         }
+        catch( all ) {
+          logger.error("Unknown error occured!?")
+          service.createAck(workingDir,fileName,'-99','Unknown error')
+        }
       }
     }
 
@@ -72,6 +76,5 @@ catch( SecretKeyNotFoundException ex ) {
   logger.error("Encryption key not found in environment variable DG_SECRET_KEY")
 }
 catch( Exception ex ) {
-  logger.error("Unknown error occured!?", ex)
-  service.createAck(workingDir,fileName,'-99','Unknown error')
+  logger.error("Unknown error occured!?", ex)  
 }
