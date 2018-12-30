@@ -45,10 +45,12 @@ try {
           logger.info "Processing [$fullFileName] records with file id $fileId"
           cnt = 0
 
-          // loop thru each line in file
+          // loop thru each line in file, ignoring lines starting with a pound character
           file.eachLine() { line ->
-            service.storeRecord(fileId, line)
-            cnt += 1
+            if( line[0] != '#' ) {
+              service.storeRecord(fileId, line)
+              cnt += 1
+            }
           }
 
           logger.info "Finished storing $cnt records for file id $fileId"
