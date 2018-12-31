@@ -12,9 +12,17 @@ class LineParser {
 
   static Pattern zipPattern = Pattern.compile("[a-zA-Z0-9- ]")
 
-  // parses a comma seperated string into each field
-  // expected line format is
-  // <merc ref>,<amount>,<card>,<expiry month>,<expiry year>,<first name>,<last name>,<email>,<postal code>
+  /** parses a comma seperated string into each field, expected line format is
+   * <merc ref> 1..40
+   * <amount> 1..13
+   * <card> 1..20
+   * <expiry month> 1..5
+   * <expiry year>
+   * <first name> 1..40
+   * <last name> 1..40
+   * <email> 1..100
+   * <postal code> 1..10
+   */
   def parse( recordId, line ) {
     def req = new CardRequest(recordId: recordId)
     def tokens = line.trim().split(',')
@@ -24,26 +32,24 @@ class LineParser {
 
     // ------------ ref
     def token = tokens[0].trim()
-    validateEmpty(token, 'ref')
+    validateLength(token, 'ref', 1, 40)
 
     req.ref = token
 
     // ------------ amount
     token = tokens[1].trim()
+    validateLength(token, 'amount', 1, 13)
 
-    if( token.length() == 0 )
-      throw new IllegalArgumentException('Missing [amount] field')
-    else if( token.isNumber() == false )
+    if( token.isNumber() == false )
       throw new IllegalArgumentException('[amount] field is not numeric')
 
     req.amount = token
 
     // ------------ cardNbr
     token = tokens[2].trim()
+    validateLength(token, 'cardNbr', 1, 20)
 
-    if( token.length() == 0 )
-      throw new IllegalArgumentException('Missing [cardNbr] field')
-    else if( token.isNumber() == false )
+    if( token.isNumber() == false )
       throw new IllegalArgumentException('[cardNbr] field is not numeric')
     else {
       if( validateLuhn(token) == false )
@@ -86,24 +92,26 @@ class LineParser {
 
     // ------------ firstName
     token = tokens[5].trim()
-    validateEmpty(token, 'firstName')
+    validateLength(token, 'firstName', 1, 40)
 
     req.firstName = token
 
     // ------------ lastName
     token = tokens[6].trim()
-    validateEmpty(token, 'lastName')
+    validateLength(token, 'firstName', 1, 40)
 
     req.lastName = token
 
     // ------------ email
     token = tokens[7].trim()
-    validateEmpty(token, 'email')
+    validateLength(token, 'email', 1, 100)
 
     req.email = token
 
     // ------------ zipCode
     token = tokens[8].trim()
+    validateLength(token, 'zipCode', 1, 10)
+
     Matcher matcher = zipPattern.matcher(token);
     if( !matcher.find() )
       throw new IllegalArgumentException('[zipCode] field is invalid')
@@ -113,11 +121,11 @@ class LineParser {
     return req
   }
 
-  // Validates that a token is an empty string
-  // throws ValueError if it is empty
-  def validateEmpty( token, name ) {
-    if( token.length() == 0 )
-      throw new IllegalArgumentException('Missing [' + name + '] field')
+  // Validates that a token is within certain length boundaries
+  // throws IllegalArgumentException if not within those boundaries
+  def validateLength( token, name, min, max ) {
+    if( token.length() < min || token.length() > max )
+      throw new IllegalArgumentException("Bad field length for [$name]")
   }
 
   // Validates that a card passes the Luhn check
