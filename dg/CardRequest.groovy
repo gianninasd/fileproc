@@ -5,15 +5,26 @@ class CardRequest {
   
   def recordId = 0
   def guid = ''
+  def txnType = ''
+  def acctNbr = ''
   def ref = ''
   def amount = ''
   def cardNbr = ''
+  def cardBrand = ''
+  def cvv = ''
   def cardExpMth = ''
   def cardExpYear = ''
+  def addr1 = ''
+  def addr2 = ''
+  def city = ''
+  def province = ''
+  def country = ''
   def zipCode = ''
   def firstName = ''
   def lastName = ''
   def email = ''
+  def phone = ''
+  def previousCustomer = ''
 
   String toString() {
     return 'ref=' + ref + 
