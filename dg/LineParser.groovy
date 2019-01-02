@@ -80,6 +80,7 @@ class LineParser {
     def slashIdx = token.indexOf('/')
     def mth = token[0..slashIdx-1]
     def yr = token[slashIdx+1..token.length()-1]
+    def cardExpYear = 0
 
     if( mth.isNumber() == false )
       throw new IllegalArgumentException('[cardExpMth] field is not numeric')
@@ -95,14 +96,14 @@ class LineParser {
     if( yr.isNumber() == false )
       throw new IllegalArgumentException('[cardExpYear] field is not numeric')
     else {
-      def cardExpYear = (yr as int) + 2000 // TODO not sure this is correct way of doing it
+      cardExpYear = (yr as int) + 2000 // TODO not sure this is correct way of doing it
       def currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
       if( (cardExpYear < currentYear - 10) || (cardExpYear > currentYear + 10) )
         throw new IllegalArgumentException('[cardExpYear] field is invalid')
     }
 
-    req.cardExpYear = yr
+    req.cardExpYear = cardExpYear
 
     // ------------ amount
     token = tokens[4].trim()
