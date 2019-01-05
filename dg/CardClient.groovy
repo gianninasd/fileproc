@@ -1,12 +1,11 @@
 package dg
 
-import groovy.json.JsonBuilder
-import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 
 import dg.CardResponse
+import dg.CardJsonUtils
 
 // Client class used to call an external REST API for transaction processing
 class CardClient {
@@ -19,43 +18,13 @@ class CardClient {
     def http = new HTTPBuilder( cardUrl )
     http.auth.basic apiUser, apiPass
 
-    // constructs a collection that will turn into a JSON representation
-    def builder = new JsonBuilder()
-    builder {
-      merchantRefNum cardRequest.ref
-      amount cardRequest.amount
-      settleWithAuth cardRequest.txnType == "P"? true: false
-      card {
-        cardNum cardRequest.cardNbr
-        cardExpiry {
-          month cardRequest.cardExpMth
-          year cardRequest.cardExpYear
-        }
-        cvv cardRequest.cvv
-      }
-      profile {
-        firstName cardRequest.firstName
-        lastName cardRequest.lastName
-        email cardRequest.email
-      }
-      billingDetails {
-        street cardRequest.addr1
-        street2 cardRequest.addr2
-        city cardRequest.city
-        state cardRequest.province
-        country cardRequest.country
-        zip cardRequest.zipCode
-        phone cardRequest.phone
-      }
-    }
-
     def result = null
 
     try {
       http.request( POST ) {
         uri.path = "/cardpayments/v1/accounts/$cardRequest.accountId/auths"
         requestContentType = JSON
-        body = builder.toString()
+        body = CardJsonUtils.createJson( cardRequest )
 
         response.success = { resp, json ->
           result = new CardResponse(cardRequest.recordId, 'SUCCESS', cardRequest.ref)
