@@ -20,9 +20,10 @@ class RecordDAO extends AbstractDAO {
   static def UPDATE_RESPONSE = 'update file_records set status_cde = :status, response_body = :response, ' \
     + 'modification_date = now() where record_id = :recordId'
   static def LOAD_ALL_INITIAL = 'select record_id, creation_date, raw_record from fileproc.file_records ' \
-    + 'where status_cde = "INITIAL" order by creation_date asc limit 10'
+    + 'where status_cde = "INITIAL" order by creation_date asc limit :recordsToLoad'
 
   ConfigObject config
+  def recordsToLoad
 
   // create a new record entry
   def createInitial( fileId, record ) {
@@ -61,13 +62,16 @@ class RecordDAO extends AbstractDAO {
   // returns all the records in an initial status
   def getAllWithStatusInitial() {
     Sql sql = null
+    def data = [
+      'recordsToLoad': recordsToLoad,
+    ]
 
     try {
       ds = getDataSource(config)
       sql = new Sql(ds)
       def recs = []
 
-      sql.eachRow(LOAD_ALL_INITIAL) { row ->
+      sql.eachRow(LOAD_ALL_INITIAL, data) { row ->
         Record rawRec = new Record()
         rawRec.recordId = row.record_id
         rawRec.rawData = row.raw_record

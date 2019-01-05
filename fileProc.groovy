@@ -40,7 +40,7 @@ try {
 
   def executor = Executors.newFixedThreadPool(config.client.maxThreads)
   def ecs = new ExecutorCompletionService(executor)
-  RecordDAO recordDAO = new RecordDAO(config: config.db)
+  RecordDAO recordDAO = new RecordDAO(config: config.db, recordsToLoad: config.client.recordsToLoad)
   def cryptoUtil = new CryptoUtil(secretKey: secretKey)
 
   while( true ) {
