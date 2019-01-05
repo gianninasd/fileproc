@@ -6,7 +6,7 @@ class CardRequest {
   def recordId = 0
   def guid = ''
   def txnType = ''
-  def acctNbr = ''
+  def accountId = ''
   def ref = ''
   def amount = ''
   def cardNbr = ''

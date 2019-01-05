@@ -23,7 +23,7 @@ class LineParser {
    * expiry year
    * amount 1..13
    * tran type 1
-   * acct nbr 1..13
+   * account id 1..13
    * merc ref 1..40
    * first name 1..40
    * last name 1..40
@@ -122,14 +122,14 @@ class LineParser {
 
     req.txnType = token
 
-    // ------------ acctNbr
+    // ------------ accountId
     token = tokens[6].trim()
-    validateLength(token, 'acctNbr', 1, 10)
+    validateLength(token, 'accountId', 1, 10)
 
     if( token.isNumber() == false )
-      throw new IllegalArgumentException('[acctNbr] field is not numeric')
+      throw new IllegalArgumentException('[accountId] field is not numeric')
 
-    req.acctNbr = token
+    req.accountId = token
 
     // ------------ ref
     token = tokens[7].trim()

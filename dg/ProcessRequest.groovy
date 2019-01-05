@@ -28,7 +28,6 @@ class ProcessRequest implements Callable {
     def guid = UUID.randomUUID().toString()
     def client = new CardClient(
       cardUrl: config.url, 
-      accountId: config.accountId, 
       apiUser: config.apiUser, 
       apiPass: config.apiPass)
 

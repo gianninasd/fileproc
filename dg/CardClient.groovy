@@ -13,7 +13,6 @@ class CardClient {
   def cardUrl = ''
   def apiUser = ''
   def apiPass = ''
-  def accountId = ''
 
   // sends a purchase request to a remote REST API
   def purchase( cardRequest ) {
@@ -47,7 +46,7 @@ class CardClient {
 
     try {
       http.request( POST ) {
-        uri.path = "/cardpayments/v1/accounts/$accountId/auths"
+        uri.path = "/cardpayments/v1/accounts/$cardRequest.accountId/auths"
         requestContentType = JSON
         body = builder.toString()
 
