@@ -10,13 +10,12 @@ import dg.CardJsonUtils
 // Client class used to call an external REST API for transaction processing
 class CardClient {
   def cardUrl = ''
-  def apiUser = ''
-  def apiPass = ''
+  def apiKey = ''
 
   // sends a purchase request to a remote REST API
   def purchase( cardRequest ) {
     def http = new HTTPBuilder( cardUrl )
-    http.auth.basic apiUser, apiPass
+    http.setHeaders([Authorization: "Basic " + apiKey])
 
     def result = null
 

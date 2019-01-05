@@ -26,10 +26,7 @@ class ProcessRequest implements Callable {
 
   def call() {
     def guid = UUID.randomUUID().toString()
-    def client = new CardClient(
-      cardUrl: config.url, 
-      apiUser: config.apiUser, 
-      apiPass: config.apiPass)
+    def client = new CardClient( cardUrl: config.url, apiKey: config.apiKey )
 
     try {
       def parser = new LineParser()
