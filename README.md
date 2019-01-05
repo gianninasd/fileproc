@@ -5,10 +5,11 @@ A Groovy program that reads a CSV file, stores each record in a database and the
 *Sending emails with Apache Commons Email*
 
 ## Pre-requisites
+* Install and run MySQL 5.5 or higher
 * Install Java 8
 * Install Groovy 2.5.x 
 
-## Getting started
+## Running applications
 There two seperate applications you need to launch, the Loader and the Processor, first get the code:
 * `git clone https://github.com/gianninasd/fileproc.git`
 * `cd fileproc`
