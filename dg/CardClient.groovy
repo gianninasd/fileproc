@@ -18,19 +18,20 @@ class CardClient {
   def purchase( cardRequest ) {
     def http = new HTTPBuilder( cardUrl )
     http.auth.basic apiUser, apiPass
-    
+
     // constructs a collection that will turn into a JSON representation
     def builder = new JsonBuilder()
     builder {
       merchantRefNum cardRequest.ref
       amount cardRequest.amount
-      settleWithAuth true
+      settleWithAuth cardRequest.txnType == "P"? true: false
       card {
         cardNum cardRequest.cardNbr
         cardExpiry {
           month cardRequest.cardExpMth
           year cardRequest.cardExpYear
         }
+        cvv cardRequest.cvv
       }
       profile {
         firstName cardRequest.firstName
@@ -38,7 +39,13 @@ class CardClient {
         email cardRequest.email
       }
       billingDetails {
+        street cardRequest.addr1
+        street2 cardRequest.addr2
+        city cardRequest.city
+        state cardRequest.province
+        country cardRequest.country
         zip cardRequest.zipCode
+        phone cardRequest.phone
       }
     }
 
