@@ -8,6 +8,8 @@
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import groovy.time.TimeCategory
+import java.util.Date
 
 import dg.SecretKeyNotFoundException
 import dg.DupeFileException
@@ -43,6 +45,7 @@ try {
           fileId = service.create(workingDir, fullFileName)
           
           logger.info "Processing [$fullFileName] records with file id $fileId"
+          def startTime = new Date()
           cnt = 0
 
           // loop thru each line in file, ignoring lines starting with a pound character
@@ -53,7 +56,9 @@ try {
             }
           }
 
-          logger.info "Finished storing $cnt records for file id $fileId"
+          def endTime = new Date()
+          def duration = TimeCategory.minus(endTime, startTime)
+          logger.info "Finished storing $cnt records for file id $fileId in $duration"
           service.createAck(workingDir,fileName,'0','File received')
         }
         catch( FileNotFoundException ex ) {

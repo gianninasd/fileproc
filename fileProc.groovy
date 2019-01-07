@@ -54,33 +54,36 @@ try {
     def failedCnt = 0
     def submitCnt = 0
 
-    for(rec in recs) {
-      line = cryptoUtil.decrypt(rec.rawData)
-      ecs.submit( new ProcessRequest(recordDAO, config.client, rec.recordId, line) )
-      submitCnt++
-    }
-
-    // loop until we have received the response for each submitted record
-    Future future
-    while( submitCnt > 0 ) {
-      while( (future = ecs.poll()) != null ) {
-        CardResponse result = future.get()
-        logger.info result.toString()
-        recordDAO.updateResponse(result)
-
-        if( result.decision == 'SUCCESS' )
-          successCnt++
-        else if( result.decision == 'FAILED' )
-          failedCnt++
-
-        requestCnt++
-        submitCnt--
+    if( recs.size() > 0 ) {
+      for(rec in recs) {
+        line = cryptoUtil.decrypt(rec.rawData)
+        ecs.submit( new ProcessRequest(recordDAO, config.client, rec.recordId, line) )
+        submitCnt++
       }
+
+      // loop until we have received the response for each submitted record
+      Future future
+      while( submitCnt > 0 ) {
+        while( (future = ecs.poll()) != null ) {
+          CardResponse result = future.get()
+          logger.info result.toString()
+          recordDAO.updateResponse(result)
+
+          if( result.decision == 'SUCCESS' )
+            successCnt++
+          else if( result.decision == 'FAILED' )
+            failedCnt++
+
+          requestCnt++
+          submitCnt--
+        }
+      }
+
+      def endTime = new Date()
+      def duration = TimeCategory.minus(endTime, startTime)
+      logger.info "Processed $requestCnt record(s) in ${duration} - $successCnt succeeded, $failedCnt failed"
     }
 
-    def endTime = new Date()
-    def duration = TimeCategory.minus(endTime, startTime)
-    logger.info "Processed $requestCnt record(s) in ${duration} - $successCnt succeeded, $failedCnt failed"
     logger.info "Going to sleep for 60s..."
     sleep(60000)
   }
