@@ -7,15 +7,15 @@ scan("30 seconds")
 def LOG_PATH = "logs"
 
 appender("Console-Appender", ConsoleAppender) {
-    encoder(PatternLayoutEncoder) {
-        pattern = "%d{yyy-MM-dd HH:mm:ss} GUID=%X{guid} %-5level %logger{0} - %msg%n"
-    }
+  encoder(PatternLayoutEncoder) {
+    pattern = "%d{yyy-MM-dd HH:mm:ss} %-5level %logger{0} - %msg%n"
+  }
 }
 appender("File-Appender", FileAppender) {
-    file = "${LOG_PATH}/fileProc.log"
-    encoder(PatternLayoutEncoder) {
-        pattern = "%d{yyy-MM-dd HH:mm:ss} GUID=%X{guid} %-5level %logger{0} - %msg%n"
-    }
+  file = "${LOG_PATH}/fileProc.log"
+  encoder(PatternLayoutEncoder) {
+    pattern = "%d{yyy-MM-dd HH:mm:ss} %-5level %logger{0} - %msg%n"
+  }
 }
 
 root(INFO, ["Console-Appender","File-Appender"])

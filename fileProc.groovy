@@ -66,7 +66,7 @@ try {
       while( submitCnt > 0 ) {
         while( (future = ecs.poll()) != null ) {
           CardResponse result = future.get()
-          logger.info result.toString()
+          logger.info "Received ${result.toString()}"
           recordDAO.updateResponse(result)
 
           if( result.decision == 'SUCCESS' )
